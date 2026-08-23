@@ -1,0 +1,40 @@
+'use strict';
+
+require('dotenv').config();
+
+const env = {
+  port: parseInt(process.env.PORT || '5000', 10),
+  nodeEnv: process.env.NODE_ENV || 'development',
+  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+
+  jwtSecret: process.env.JWT_SECRET || 'insecure-dev-secret',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+
+  db: {
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: parseInt(process.env.DB_PORT || '3306', 10),
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'healthcare_platform',
+    connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10', 10),
+  },
+
+  dataEncryptionKey: process.env.DATA_ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef',
+
+  security: {
+    maxLoginAttempts: parseInt(process.env.MAX_LOGIN_ATTEMPTS || '5', 10),
+    loginLockoutMinutes: parseInt(process.env.LOGIN_LOCKOUT_MINUTES || '15', 10),
+    rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
+    rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || '300', 10),
+  },
+
+  sensorApiKey: process.env.SENSOR_API_KEY || 'dev-sensor-key-123',
+
+  seed: {
+    adminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@healthcare.local',
+    adminPassword: process.env.SEED_ADMIN_PASSWORD || 'Admin123!',
+  },
+};
+
+module.exports = env;

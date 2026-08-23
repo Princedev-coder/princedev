@@ -1,0 +1,16 @@
+
+> healthcare-platform-frontend@1.0.0 dev
+> vite --host
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m914[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.68:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://172.28.144.1:[1m5173[22m/[39m
+[2m8:42:34 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/context/AuthContext.jsx[22m
+[2m8:42:34 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/context/AuthContext.jsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m8:42:34 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/components/ProtectedRoute.jsx, /src/pages/Predictions.jsx, /src/pages/Records.jsx, /src/components/Layout.jsx, /src/pages/Profile.jsx, /src/pages/Login.jsx, /src/pages/Patients.jsx, /src/pages/Dashboard.jsx[22m
+[2m8:48:28 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/context/AuthContext.jsx, /src/pages/Alerts.jsx, /src/pages/Predictions.jsx, /src/pages/Records.jsx, /src/pages/PatientDetail.jsx, /src/pages/Thresholds.jsx, /src/pages/Staff.jsx, /src/pages/AuditLogs.jsx, /src/pages/MonitorPatient.jsx, /src/components/Layout.jsx, /src/pages/Profile.jsx, /src/pages/Login.jsx, /src/pages/Monitor.jsx, /src/pages/Devices.jsx, /src/pages/Patients.jsx, /src/pages/Dashboard.jsx[22m
+[2m8:48:28 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/context/AuthContext.jsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m8:48:28 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/components/ProtectedRoute.jsx, /src/pages/Predictions.jsx, /src/pages/Records.jsx, /src/components/Layout.jsx, /src/pages/Profile.jsx, /src/pages/Login.jsx, /src/pages/Patients.jsx, /src/pages/Dashboard.jsx[22m
