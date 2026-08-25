@@ -61,6 +61,10 @@ app.use('/api/records', recordsRoutes);
 app.use('/api', miscRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'Healthcare Platform Backend is running successfully' });
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
