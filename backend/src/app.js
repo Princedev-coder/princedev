@@ -28,9 +28,22 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.use(helmet());
+const allowedOrigins = [
+  env.clientOrigin,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://healthcare-platform-frontend.vercel.app',
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: true,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
   }),
 );

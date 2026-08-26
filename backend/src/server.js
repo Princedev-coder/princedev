@@ -37,7 +37,7 @@ ensureDatabaseReady()
 
     io = new Server(server, {
       cors: {
-        origin: env.clientOrigin,
+        origin: true,
         credentials: true,
       },
     });

@@ -2,6 +2,24 @@
 
 require('dotenv').config();
 
+function parseDatabaseUrl(url) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    return {
+      host: parsed.hostname,
+      port: parseInt(parsed.port || '3306', 10),
+      user: decodeURIComponent(parsed.username),
+      password: decodeURIComponent(parsed.password),
+      database: parsed.pathname.replace(/^\//, ''),
+    };
+  } catch {
+    return null;
+  }
+}
+
+const urlConfig = parseDatabaseUrl(process.env.DATABASE_URL);
+
 const env = {
   port: parseInt(process.env.PORT || '5000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -12,12 +30,13 @@ const env = {
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 
   db: {
-    host: process.env.DB_HOST || '127.0.0.1',
-    port: parseInt(process.env.DB_PORT || '3306', 10),
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'healthcare_platform',
+    host: (urlConfig && urlConfig.host) || process.env.DB_HOST || '127.0.0.1',
+    port: (urlConfig && urlConfig.port) || parseInt(process.env.DB_PORT || '3306', 10),
+    user: (urlConfig && urlConfig.user) || process.env.DB_USER || 'root',
+    password: (urlConfig && urlConfig.password) || process.env.DB_PASSWORD || '',
+    database: (urlConfig && urlConfig.database) || process.env.DB_NAME || 'healthcare_platform',
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10', 10),
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined,
   },
 
   dataEncryptionKey: process.env.DATA_ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef',

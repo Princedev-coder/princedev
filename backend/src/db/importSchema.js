@@ -2,24 +2,19 @@
 
 const fs = require('fs');
 const path = require('path');
-const mysql = require('mysql2/promise');
+const pool = require('../config/db');
 const env = require('../config/env');
 
-const sqlFile = path.resolve(__dirname, '../../../healthcare_platform.sql');
+const sqlFile = fs.existsSync(path.resolve(__dirname, '../../healthcare_platform.sql'))
+  ? path.resolve(__dirname, '../../healthcare_platform.sql')
+  : path.resolve(__dirname, '../../../healthcare_platform.sql');
 
 async function importSchema() {
   if (!fs.existsSync(sqlFile)) {
     throw new Error(`Schema file not found: ${sqlFile}`);
   }
 
-  const conn = await mysql.createConnection({
-    host: env.db.host,
-    port: env.db.port,
-    user: env.db.user,
-    password: env.db.password,
-    multipleStatements: true,
-  });
-
+  const conn = await pool.getConnection();
   try {
     const [vRows] = await conn.query('SELECT VERSION() AS v');
     console.log(`Connected. Server version: ${vRows[0].v}`);
@@ -35,7 +30,7 @@ async function importSchema() {
     await conn.query(sql);
     console.log('Schema imported successfully.');
   } finally {
-    await conn.end();
+    conn.release();
   }
 }
 

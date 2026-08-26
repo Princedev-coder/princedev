@@ -3,7 +3,7 @@
 const mysql = require('mysql2/promise');
 const env = require('./env');
 
-const pool = mysql.createPool({
+const poolConfig = {
   host: env.db.host,
   port: env.db.port,
   user: env.db.user,
@@ -14,15 +14,14 @@ const pool = mysql.createPool({
   queueLimit: 0,
   dateStrings: false,
   supportBigNumbers: true,
-});
+  multipleStatements: true,
+  connectTimeout: 20000,
+};
 
-pool.getConnection()
-  .then((conn) => {
-    conn.release();
-    console.log(`[db] Connected to MySQL at ${env.db.host}:${env.db.port}/${env.db.database}`);
-  })
-  .catch((err) => {
-    console.error('[db] Connection failed:', err.message);
-  });
+if (env.db.ssl) {
+  poolConfig.ssl = env.db.ssl;
+}
+
+const pool = mysql.createPool(poolConfig);
 
 module.exports = pool;
