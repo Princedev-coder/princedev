@@ -5,9 +5,18 @@ const pool = require('../config/db');
 const env = require('../config/env');
 
 async function upsertUser({ full_name, email, phone, role, password, hospital_id, department_id }) {
-  const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
-  if (existing.length) return existing[0].id;
+  const [existing] = await pool.query('SELECT id, password_hash FROM users WHERE email = ?', [email]);
   const hash = await bcrypt.hash(password, 10);
+  if (existing.length) {
+    const needsUpdate = !await bcrypt.compare(password, existing[0].password_hash);
+    if (needsUpdate) {
+      await pool.query(
+        `UPDATE users SET password_hash = ?, full_name = ?, phone = COALESCE(?, phone), role = ?, hospital_id = COALESCE(?, hospital_id), department_id = COALESCE(?, department_id), status = 'ACTIVE', updated_at = NOW() WHERE id = ?`,
+        [hash, full_name, phone || null, role, hospital_id || null, department_id || null, existing[0].id]
+      );
+    }
+    return existing[0].id;
+  }
   const [result] = await pool.query(
     `INSERT INTO users (full_name, email, phone, password_hash, role, hospital_id, department_id, status)
      VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVE')`,
