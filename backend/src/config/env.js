@@ -49,7 +49,7 @@ const env = {
     password: dbPassword,
     database: dbName,
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10', 10),
-    ssl: sslEnabled ? { rejectUnauthorized: true } : undefined,
+    ssl: sslEnabled ? { rejectUnauthorized: false } : undefined,
   },
 
   dataEncryptionKey: process.env.DATA_ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef',
