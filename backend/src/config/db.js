@@ -15,7 +15,7 @@ const poolConfig = {
   dateStrings: false,
   supportBigNumbers: true,
   multipleStatements: true,
-  connectTimeout: 20000,
+  connectTimeout: parseInt(process.env.DB_CONNECT_TIMEOUT || '5000', 10),
 };
 
 if (env.db.ssl) {

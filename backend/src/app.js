@@ -76,8 +76,8 @@ app.use('/api/thresholds', thresholdsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/predictions', predictionsRoutes);
 app.use('/api/records', recordsRoutes);
-app.use('/api', miscRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api', miscRoutes);
 
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'Healthcare Platform Backend is running successfully' });

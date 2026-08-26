@@ -1,7 +1,5 @@
 'use strict';
 
-const pool = require('../config/db');
-
 class AppError extends Error {
   constructor(statusCode, message, details) {
     super(message);

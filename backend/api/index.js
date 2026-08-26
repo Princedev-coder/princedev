@@ -23,6 +23,8 @@ function ensureDb() {
         }
       } catch (err) {
         console.error('[vercel] Auto-setup failed:', err.message);
+        dbReady = null;
+        throw err;
       }
     })();
   }
@@ -34,6 +36,9 @@ module.exports = async function handler(req, res) {
     await ensureDb();
   } catch (err) {
     console.error('[vercel] DB init error:', err.message);
+    if (req.url === '/api/health') {
+      return res.status(503).json({ success: false, message: 'Database unavailable: ' + err.message });
+    }
   }
   return app(req, res);
 };

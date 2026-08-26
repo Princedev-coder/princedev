@@ -20,9 +20,22 @@ function parseDatabaseUrl(url) {
 
 const urlConfig = parseDatabaseUrl(process.env.DATABASE_URL);
 
+const dbHost = (urlConfig && urlConfig.host) || process.env.DB_HOST || '';
+const dbUser = (urlConfig && urlConfig.user) || process.env.DB_USER || '';
+const dbPassword = (urlConfig && urlConfig.password) || process.env.DB_PASSWORD || '';
+const dbName = (urlConfig && urlConfig.database) || process.env.DB_NAME || 'healthcare_platform';
+
+const nodeEnv = process.env.NODE_ENV || 'development';
+if (nodeEnv === 'production' && !dbHost) {
+  console.error('[env] CRITICAL: No DB_HOST or DATABASE_URL set. The app will fail to connect to any database.');
+}
+
+const sslDefault = nodeEnv === 'production';
+const sslEnabled = process.env.DB_SSL === 'false' ? false : (process.env.DB_SSL === 'true' ? true : sslDefault);
+
 const env = {
   port: parseInt(process.env.PORT || '5000', 10),
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv,
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
 
   jwtSecret: process.env.JWT_SECRET || 'insecure-dev-secret',
@@ -30,13 +43,13 @@ const env = {
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 
   db: {
-    host: (urlConfig && urlConfig.host) || process.env.DB_HOST || '127.0.0.1',
+    host: dbHost || '127.0.0.1',
     port: (urlConfig && urlConfig.port) || parseInt(process.env.DB_PORT || '3306', 10),
-    user: (urlConfig && urlConfig.user) || process.env.DB_USER || 'root',
-    password: (urlConfig && urlConfig.password) || process.env.DB_PASSWORD || '',
-    database: (urlConfig && urlConfig.database) || process.env.DB_NAME || 'healthcare_platform',
+    user: dbUser || 'root',
+    password: dbPassword,
+    database: dbName,
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10', 10),
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined,
+    ssl: sslEnabled ? { rejectUnauthorized: true } : undefined,
   },
 
   dataEncryptionKey: process.env.DATA_ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef',

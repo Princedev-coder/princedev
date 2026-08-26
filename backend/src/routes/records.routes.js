@@ -27,6 +27,9 @@ const SCHEMAS = {
   notes: nurseNoteSchema,
 };
 
+router.get('/prescriptions/:id', recordsController.getPrescription);
+router.post('/prescriptions/:prescriptionId/items', validate(prescriptionItemSchema), recordsController.addPrescriptionItems);
+
 router.get('/:kind', (req, res, next) => {
   if (!SCHEMAS[req.params.kind]) return next({ statusCode: 400, message: 'Unknown record type' });
   return recordsController.listRecords(req, res, next);
@@ -39,8 +42,5 @@ router.post('/:kind', (req, res, next) => {
 });
 
 router.put('/:kind/:id', (req, res, next) => recordsController.updateRecord(req, res, next));
-
-router.get('/prescriptions/:id', recordsController.getPrescription);
-router.post('/prescriptions/:prescriptionId/items', validate(prescriptionItemSchema), recordsController.addPrescriptionItems);
 
 module.exports = router;

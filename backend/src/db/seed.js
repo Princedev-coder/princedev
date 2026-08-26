@@ -3,8 +3,6 @@
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 const env = require('../config/env');
-const aiService = require('../services/aiService');
-const alertService = require('../services/alertService');
 
 async function upsertUser({ full_name, email, phone, role, password, hospital_id, department_id }) {
   const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
@@ -19,6 +17,8 @@ async function upsertUser({ full_name, email, phone, role, password, hospital_id
 }
 
 async function seed() {
+  const alertService = require('../services/alertService');
+  const aiService = require('../services/aiService');
   console.log('Seeding demo data...');
 
   const [[{ cnt: hospitalCount }]] = await pool.query('SELECT COUNT(*) AS cnt FROM hospitals');
@@ -209,7 +209,11 @@ async function seed() {
           [patientId, device.id, heart_rate, spo2, temperature, systolic, diastolic, respiratory, null, recordedAt]
         );
         const reading = { id: result.insertId, patient_id: patientId, hospital_id: 1, heart_rate, spo2, temperature, systolic_pressure: systolic, diastolic_pressure: diastolic, respiratory_rate: respiratory };
-        await alertService.processReading(reading);
+        try {
+          await alertService.processReading(reading);
+        } catch (e) {
+          // ignore individual alert processing failures during seed
+        }
         generated++;
         if (h % 6 === 0) {
           try {
