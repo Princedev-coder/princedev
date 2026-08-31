@@ -25,6 +25,52 @@ async function upsertUser({ full_name, email, phone, role, password, hospital_id
   return result.insertId;
 }
 
+async function seedVitalsForPatients(patientIds) {
+  const alertService = require('../services/alertService');
+  const aiService = require('../services/aiService');
+  const [devices] = await pool.query('SELECT id, device_code FROM medical_devices ORDER BY id');
+  if (devices.length === 0) return 0;
+  let generated = 0;
+  for (let i = 0; i < patientIds.length; i++) {
+    const patientId = patientIds[i];
+    const device = devices[i % devices.length];
+    const baseHr = [78, 95, 118, 85][i % 4];
+    const baseSpo2 = [98, 97, 91, 99][i % 4];
+    const baseTemp = [36.8, 37.1, 38.6, 36.6][i % 4];
+    for (let h = 0; h < 24; h++) {
+      const variance = Math.sin(h / 4) * 6;
+      const heart_rate = Math.round(baseHr + variance + (Math.random() * 6 - 3));
+      const spo2 = Math.max(88, Math.min(100, Math.round(baseSpo2 + (Math.random() * 2 - 1))));
+      const temperature = Number((baseTemp + (Math.random() * 0.6 - 0.3)).toFixed(1));
+      const systolic = Math.round(120 + (Math.random() * 14 - 7));
+      const diastolic = Math.round(78 + (Math.random() * 10 - 5));
+      const respiratory = Math.round(16 + (Math.random() * 4 - 2));
+      const recordedAt = new Date(Date.now() - (23 - h) * 3600 * 1000);
+      const [result] = await pool.query(
+        `INSERT INTO vital_readings
+          (patient_id, device_id, heart_rate, spo2, temperature, systolic_pressure, diastolic_pressure, respiratory_rate, blood_glucose, recorded_at, source)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DEVICE')`,
+        [patientId, device.id, heart_rate, spo2, temperature, systolic, diastolic, respiratory, null, recordedAt]
+      );
+      const reading = { id: result.insertId, patient_id: patientId, hospital_id: 1, heart_rate, spo2, temperature, systolic_pressure: systolic, diastolic_pressure: diastolic, respiratory_rate: respiratory };
+      try {
+        await alertService.processReading(reading);
+      } catch (e) {
+        // ignore individual alert processing failures during seed
+      }
+      generated++;
+      if (h % 6 === 0) {
+        try {
+          await aiService.generatePrediction(patientId, reading);
+        } catch (e) {
+          // ignore individual prediction failures
+        }
+      }
+    }
+  }
+  return generated;
+}
+
 async function seed() {
   const alertService = require('../services/alertService');
   const aiService = require('../services/aiService');
@@ -192,48 +238,15 @@ async function seed() {
     }
   }
 
-  const [[{ cnt: readingCount }]] = await pool.query('SELECT COUNT(*) AS cnt FROM vital_readings');
-  if (readingCount === 0 && patientIds.length > 0) {
-    const [devices] = await pool.query('SELECT id, device_code FROM medical_devices');
-    let generated = 0;
-    for (let i = 0; i < patientIds.length; i++) {
-      const patientId = patientIds[i];
-      const device = devices[i % devices.length];
-      const baseHr = [78, 95, 118, 85][i % 4];
-      const baseSpo2 = [98, 97, 91, 99][i % 4];
-      const baseTemp = [36.8, 37.1, 38.6, 36.6][i % 4];
-      for (let h = 0; h < 24; h++) {
-        const variance = Math.sin(h / 4) * 6;
-        const heart_rate = Math.round(baseHr + variance + (Math.random() * 6 - 3));
-        const spo2 = Math.max(88, Math.min(100, Math.round(baseSpo2 + (Math.random() * 2 - 1))));
-        const temperature = Number((baseTemp + (Math.random() * 0.6 - 0.3)).toFixed(1));
-        const systolic = Math.round(120 + (Math.random() * 14 - 7));
-        const diastolic = Math.round(78 + (Math.random() * 10 - 5));
-        const respiratory = Math.round(16 + (Math.random() * 4 - 2));
-        const recordedAt = new Date(Date.now() - (23 - h) * 3600 * 1000);
-        const [result] = await pool.query(
-          `INSERT INTO vital_readings
-            (patient_id, device_id, heart_rate, spo2, temperature, systolic_pressure, diastolic_pressure, respiratory_rate, blood_glucose, recorded_at, source)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'DEVICE')`,
-          [patientId, device.id, heart_rate, spo2, temperature, systolic, diastolic, respiratory, null, recordedAt]
-        );
-        const reading = { id: result.insertId, patient_id: patientId, hospital_id: 1, heart_rate, spo2, temperature, systolic_pressure: systolic, diastolic_pressure: diastolic, respiratory_rate: respiratory };
-        try {
-          await alertService.processReading(reading);
-        } catch (e) {
-          // ignore individual alert processing failures during seed
-        }
-        generated++;
-        if (h % 6 === 0) {
-          try {
-            await aiService.generatePrediction(patientId, reading);
-          } catch (e) {
-            // ignore individual prediction failures
-          }
-        }
-      }
-    }
-    console.log(`Generated ${generated} historical vital readings`);
+  const [allPatients] = await pool.query('SELECT id FROM patients ORDER BY id');
+  const [readingsPerPatient] = await pool.query(
+    'SELECT patient_id, COUNT(*) AS cnt FROM vital_readings GROUP BY patient_id'
+  );
+  const haveReadings = new Set(readingsPerPatient.map((r) => r.patient_id));
+  const missingPatients = allPatients.filter((p) => !haveReadings.has(p.id)).map((p) => p.id);
+  if (missingPatients.length > 0) {
+    const generated = await seedVitalsForPatients(missingPatients);
+    console.log(`Generated ${generated} historical vital readings for ${missingPatients.length} patient(s)`);
   }
 
   const [[{ cnt: recordCount }]] = await pool.query('SELECT COUNT(*) AS cnt FROM medical_records');
