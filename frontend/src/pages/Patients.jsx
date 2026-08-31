@@ -72,7 +72,7 @@ export default function Patients() {
         actions={canCreate && <button className="btn" onClick={() => setShowModal(true)}>+ Register Patient</button>}
       />
       <div className="toolbar">
-        <input placeholder="Search by name, number, ID..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 260 }} />
+        <input className="toolbar-search" placeholder="Search by name, number, ID..." value={search} onChange={(e) => setSearch(e.target.value)} />
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="">All statuses</option>
           {['ACTIVE', 'ADMITTED', 'DISCHARGED', 'CRITICAL'].map((s) => <option key={s} value={s}>{s}</option>)}
@@ -82,25 +82,27 @@ export default function Patients() {
 
       {loading ? <Spinner /> : patients.length === 0 ? <EmptyState message="No patients found" /> : (
         <div className="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Number</th><th>Name</th><th>Gender</th><th>Blood</th><th>DOB</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody>
-              {patients.map((p) => (
-                <tr key={p.id}>
-                  <td className="muted">{p.patient_number}</td>
-                  <td style={{ fontWeight: 600 }}>{p.first_name} {p.last_name}</td>
-                  <td>{p.gender}</td>
-                  <td>{p.blood_group}</td>
-                  <td>{p.date_of_birth ? new Date(p.date_of_birth).toLocaleDateString() : '—'}</td>
-                  <td><StatusBadge status={p.status} /></td>
-                  <td><Link className="btn btn-secondary btn-sm" to={`/patients/${p.id}`}>View</Link></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{ padding: '10px 16px', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <div className="overflow-x-auto">
+            <table>
+              <thead>
+                <tr><th>Number</th><th>Name</th><th>Gender</th><th>Blood</th><th>DOB</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody>
+                {patients.map((p) => (
+                  <tr key={p.id}>
+                    <td className="muted">{p.patient_number}</td>
+                    <td style={{ fontWeight: 600 }}>{p.first_name} {p.last_name}</td>
+                    <td>{p.gender}</td>
+                    <td>{p.blood_group}</td>
+                    <td>{p.date_of_birth ? new Date(p.date_of_birth).toLocaleDateString() : '—'}</td>
+                    <td><StatusBadge status={p.status} /></td>
+                    <td><Link className="btn btn-secondary btn-sm" to={`/patients/${p.id}`}>View</Link></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ padding: '10px 16px', display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary btn-sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Prev</button>
             <button className="btn btn-secondary btn-sm" disabled={page * 15 >= meta.total} onClick={() => setPage((p) => p + 1)}>Next</button>
           </div>
@@ -134,7 +136,7 @@ export default function Patients() {
               <Field label="Allergies"><textarea rows={2} value={form.allergies} onChange={set('allergies')} /></Field>
               <Field label="Existing Conditions"><textarea rows={2} value={form.existing_conditions} onChange={set('existing_conditions')} /></Field>
             </div>
-            <div className="text-right">
+            <div className="text-right" style={{ marginTop: 16 }}>
               <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
               <button className="btn" style={{ marginLeft: 8 }} disabled={saving}>{saving ? <span className="spinner" /> : 'Register Patient'}</button>
             </div>

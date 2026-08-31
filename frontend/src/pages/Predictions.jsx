@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, errorMessage } from '../api/client';
-import { RiskBadge, Spinner, EmptyState, Modal, Field, useToast } from '../components/ui';
+import { RiskBadge, Spinner, EmptyState, Modal, Field, useToast, PageHeader } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 export default function Predictions() {
@@ -50,13 +50,11 @@ export default function Predictions() {
 
   return (
     <>
-      <div className="page-header">
-        <div>
-          <h1>AI Health Analysis</h1>
-          <div className="muted">Heuristic risk scoring from vital trends (model: heuristic-risk-v1)</div>
-        </div>
-        {canGenerate && <button className="btn" onClick={openGenerate}>+ Generate Prediction</button>}
-      </div>
+      <PageHeader
+        title="AI Health Analysis"
+        actions={canGenerate && <button className="btn" onClick={openGenerate}>+ Generate Prediction</button>}
+      />
+      <div className="muted" style={{ marginBottom: 16, fontSize: 13 }}>Heuristic risk scoring from vital trends (model: heuristic-risk-v1)</div>
 
       <div className="toolbar">
         <select value={riskLevel} onChange={(e) => setRiskLevel(e.target.value)}>
@@ -67,22 +65,24 @@ export default function Predictions() {
 
       {loading ? <Spinner /> : predictions.length === 0 ? <EmptyState message="No AI predictions yet" /> : (
         <div className="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Patient</th><th>Type</th><th>Risk</th><th>Prediction</th><th>Generated</th></tr>
-            </thead>
-            <tbody>
-              {predictions.map((p) => (
-                <tr key={p.id}>
-                  <td style={{ fontWeight: 600 }}>{p.patient_name || `#${p.patient_id}`}</td>
-                  <td>{p.prediction_type}</td>
-                  <td><RiskBadge level={p.risk_level} score={p.risk_score} /></td>
-                  <td style={{ maxWidth: 380, whiteSpace: 'normal' }}>{p.prediction}</td>
-                  <td className="muted">{new Date(p.generated_at).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table>
+              <thead>
+                <tr><th>Patient</th><th>Type</th><th>Risk</th><th>Prediction</th><th>Generated</th></tr>
+              </thead>
+              <tbody>
+                {predictions.map((p) => (
+                  <tr key={p.id}>
+                    <td style={{ fontWeight: 600 }}>{p.patient_name || `#${p.patient_id}`}</td>
+                    <td>{p.prediction_type}</td>
+                    <td><RiskBadge level={p.risk_level} score={p.risk_score} /></td>
+                    <td style={{ maxWidth: 380, whiteSpace: 'normal' }}>{p.prediction}</td>
+                    <td className="muted">{new Date(p.generated_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

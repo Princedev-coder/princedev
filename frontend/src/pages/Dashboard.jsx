@@ -47,22 +47,24 @@ function AdminDashboard({ data }) {
         <div className="card">
           <div className="card-title">Recent Alerts</div>
           {data.recent_alerts.length === 0 ? <EmptyState /> : (
-            <table>
-              <thead>
-                <tr><th>Patient</th><th>Type</th><th>Severity</th><th>Status</th><th>When</th></tr>
-              </thead>
-              <tbody>
-                {data.recent_alerts.map((a) => (
-                  <tr key={a.id}>
-                    <td>{a.patient_name || `#${a.patient_id}`}</td>
-                    <td>{a.alert_type}</td>
-                    <td><SeverityBadge severity={a.severity} /></td>
-                    <td>{a.status}</td>
-                    <td className="muted">{new Date(a.created_at).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr><th>Patient</th><th>Type</th><th>Severity</th><th>Status</th><th>When</th></tr>
+                </thead>
+                <tbody>
+                  {data.recent_alerts.map((a) => (
+                    <tr key={a.id}>
+                      <td>{a.patient_name || `#${a.patient_id}`}</td>
+                      <td>{a.alert_type}</td>
+                      <td><SeverityBadge severity={a.severity} /></td>
+                      <td>{a.status}</td>
+                      <td className="muted">{new Date(a.created_at).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
         <div className="card">
@@ -72,7 +74,7 @@ function AdminDashboard({ data }) {
               {data.activity.map((a, i) => {
                 const max = Math.max(...data.activity.map((x) => x.count));
                 return (
-                  <div key={i} style={{ flex: 1, textAlign: 'center' }}>
+                  <div key={i} style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
                     <div style={{ background: '#0d9488', borderRadius: '4px 4px 0 0', height: `${(a.count / (max || 1)) * 130}px`, minHeight: 3 }} />
                     <div className="muted" style={{ fontSize: 9, marginTop: 4 }}>{new Date(a.day).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</div>
                   </div>
@@ -102,22 +104,24 @@ function StaffDashboard({ data, role }) {
           <Link to="/alerts" className="btn btn-secondary btn-sm">View all</Link>
         </div>
         {data.my_alerts.length === 0 ? <EmptyState message="No active alerts for your patients" /> : (
-          <table>
-            <thead>
-              <tr><th>Patient</th><th>Type</th><th>Severity</th><th>Message</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              {data.my_alerts.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.patient_name || `#${a.patient_id}`}</td>
-                  <td>{a.alert_type}</td>
-                  <td><SeverityBadge severity={a.severity} /></td>
-                  <td>{a.message}</td>
-                  <td>{a.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table>
+              <thead>
+                <tr><th>Patient</th><th>Type</th><th>Severity</th><th>Message</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {data.my_alerts.map((a) => (
+                  <tr key={a.id}>
+                    <td>{a.patient_name || `#${a.patient_id}`}</td>
+                    <td>{a.alert_type}</td>
+                    <td><SeverityBadge severity={a.severity} /></td>
+                    <td>{a.message}</td>
+                    <td>{a.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </>
@@ -162,19 +166,21 @@ function PatientDashboard({ data }) {
       <div className="card">
         <div className="card-title">Upcoming Appointments</div>
         {data.upcoming_appointments.length === 0 ? <EmptyState message="No upcoming appointments" /> : (
-          <table>
-            <thead><tr><th>Doctor</th><th>Date & Time</th><th>Reason</th><th>Status</th></tr></thead>
-            <tbody>
-              {data.upcoming_appointments.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.doctor_name}</td>
-                  <td>{new Date(a.appointment_date).toLocaleString()}</td>
-                  <td>{a.reason}</td>
-                  <td>{a.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table>
+              <thead><tr><th>Doctor</th><th>Date & Time</th><th>Reason</th><th>Status</th></tr></thead>
+              <tbody>
+                {data.upcoming_appointments.map((a) => (
+                  <tr key={a.id}>
+                    <td>{a.doctor_name}</td>
+                    <td>{new Date(a.appointment_date).toLocaleString()}</td>
+                    <td>{a.reason}</td>
+                    <td>{a.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </>

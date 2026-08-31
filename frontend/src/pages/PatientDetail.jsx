@@ -71,12 +71,12 @@ export default function PatientDetail() {
   return (
     <>
       <div className="page-header">
-        <div>
+        <div style={{ minWidth: 0 }}>
           <h1>{patient.first_name} {patient.last_name}</h1>
           <div className="muted">{patient.patient_number} · {patient.gender} · {patient.blood_group}</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Link className="btn btn-secondary" to={`/monitor/${patient.id}`}>📡 Live Monitor</Link>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <Link className="btn btn-secondary" to={`/monitor/${patient.id}`}>Live Monitor</Link>
           <button className="btn btn-secondary" onClick={() => setShowVital(true)}>+ Record Vitals</button>
           <button className="btn" onClick={openAssign}>Assign Staff</button>
         </div>
@@ -90,7 +90,7 @@ export default function PatientDetail() {
           <p><strong>Email:</strong> {patient.email || '—'}</p>
           <p><strong>Phone:</strong> {patient.phone || '—'}</p>
           <p><strong>City:</strong> {patient.city || '—'}</p>
-          {patient.allergies && <p><strong>Allergies:</strong> <span className="badge badge-red">{patient.allergies}</span></p>}
+          {patient.allergies && <p style={{ wordBreak: 'break-word' }}><strong>Allergies:</strong> <span className="badge badge-red">{patient.allergies}</span></p>}
         </div>
         <div className="card">
           <div className="card-title">Latest Vitals</div>
@@ -119,37 +119,41 @@ export default function PatientDetail() {
         <div className="card">
           <div className="card-title">Medical History</div>
           {patient.medical_history.length === 0 ? <EmptyState message="No conditions recorded" /> : (
-            <table>
-              <thead><tr><th>Condition</th><th>Status</th><th>Diagnosed</th></tr></thead>
-              <tbody>
-                {patient.medical_history.map((h) => (
-                  <tr key={h.id}>
-                    <td>{h.condition_name}</td>
-                    <td><StatusBadge status={h.status} /></td>
-                    <td>{h.diagnosed_date || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table>
+                <thead><tr><th>Condition</th><th>Status</th><th>Diagnosed</th></tr></thead>
+                <tbody>
+                  {patient.medical_history.map((h) => (
+                    <tr key={h.id}>
+                      <td>{h.condition_name}</td>
+                      <td><StatusBadge status={h.status} /></td>
+                      <td>{h.diagnosed_date || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
         <div className="card">
           <div className="card-title">Recent Readings</div>
           {vitals.length === 0 ? <EmptyState message="No readings" /> : (
-            <table>
-              <thead><tr><th>When</th><th>HR</th><th>SpO₂</th><th>Temp</th><th>BP</th></tr></thead>
-              <tbody>
-                {vitals.slice(0, 10).map((v) => (
-                  <tr key={v.id}>
-                    <td className="muted">{new Date(v.recorded_at).toLocaleString()}</td>
-                    <td>{v.heart_rate || '—'}</td>
-                    <td>{v.spo2 || '—'}</td>
-                    <td>{v.temperature || '—'}</td>
-                    <td>{v.systolic_pressure ? `${v.systolic_pressure}/${v.diastolic_pressure}` : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table>
+                <thead><tr><th>When</th><th>HR</th><th>SpO₂</th><th>Temp</th><th>BP</th></tr></thead>
+                <tbody>
+                  {vitals.slice(0, 10).map((v) => (
+                    <tr key={v.id}>
+                      <td className="muted">{new Date(v.recorded_at).toLocaleString()}</td>
+                      <td>{v.heart_rate || '—'}</td>
+                      <td>{v.spo2 || '—'}</td>
+                      <td>{v.temperature || '—'}</td>
+                      <td>{v.systolic_pressure ? `${v.systolic_pressure}/${v.diastolic_pressure}` : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

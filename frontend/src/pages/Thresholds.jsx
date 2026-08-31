@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiDelete, errorMessage } from '../api/client';
-import { Spinner, EmptyState, Modal, Field, useToast } from '../components/ui';
+import { Spinner, EmptyState, Modal, Field, useToast, PageHeader } from '../components/ui';
 
 const VITAL_TYPES = ['HEART_RATE', 'SPO2', 'TEMPERATURE', 'SYSTOLIC', 'DIASTOLIC', 'RESPIRATORY_RATE', 'GLUCOSE'];
 const SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
@@ -54,31 +54,33 @@ export default function Thresholds() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Alert Thresholds</h1>
-        <button className="btn" onClick={() => setShowModal(true)}>+ New Threshold</button>
-      </div>
+      <PageHeader
+        title="Alert Thresholds"
+        actions={<button className="btn" onClick={() => setShowModal(true)}>+ New Threshold</button>}
+      />
       <div className="inline-alert info">
-        💡 Vital readings outside these ranges trigger automatic alerts and AI risk scoring.
+        Vital readings outside these ranges trigger automatic alerts and AI risk scoring.
       </div>
 
       {loading ? <Spinner /> : thresholds.length === 0 ? <EmptyState message="No thresholds configured" /> : (
         <div className="table-wrap">
-          <table>
-            <thead><tr><th>Vital Type</th><th>Min</th><th>Max</th><th>Severity</th><th>Enabled</th><th>Actions</th></tr></thead>
-            <tbody>
-              {thresholds.map((t) => (
-                <tr key={t.id}>
-                  <td style={{ fontWeight: 600 }}>{t.vital_type}</td>
-                  <td>{t.min_value ?? '—'}</td>
-                  <td>{t.max_value ?? '—'}</td>
-                  <td><span className={`badge badge-${t.severity === 'HIGH' || t.severity === 'CRITICAL' ? 'red' : t.severity === 'MEDIUM' ? 'amber' : 'green'}`}>{t.severity}</span></td>
-                  <td>{t.enabled ? '✅' : '❌'}</td>
-                  <td><button className="btn btn-danger btn-sm" onClick={() => remove(t.id)}>Delete</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table>
+              <thead><tr><th>Vital Type</th><th>Min</th><th>Max</th><th>Severity</th><th>Enabled</th><th>Actions</th></tr></thead>
+              <tbody>
+                {thresholds.map((t) => (
+                  <tr key={t.id}>
+                    <td style={{ fontWeight: 600 }}>{t.vital_type}</td>
+                    <td>{t.min_value ?? '—'}</td>
+                    <td>{t.max_value ?? '—'}</td>
+                    <td><span className={`badge badge-${t.severity === 'HIGH' || t.severity === 'CRITICAL' ? 'red' : t.severity === 'MEDIUM' ? 'amber' : 'green'}`}>{t.severity}</span></td>
+                    <td>{t.enabled ? '✅' : '❌'}</td>
+                    <td><button className="btn btn-danger btn-sm" onClick={() => remove(t.id)}>Delete</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

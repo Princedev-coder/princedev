@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, errorMessage } from '../api/client';
-import { Spinner, EmptyState, Modal, Field, useToast, StatusBadge } from '../components/ui';
+import { Spinner, EmptyState, Modal, Field, useToast, StatusBadge, PageHeader } from '../components/ui';
 
 const DEVICE_TYPES = ['HEART_RATE', 'SPO2', 'TEMPERATURE', 'BLOOD_PRESSURE', 'ECG', 'GLUCOSE', 'RESPIRATORY_RATE', 'MULTI_SENSOR', 'OTHER'];
 
@@ -58,35 +58,37 @@ export default function Devices() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Medical Devices</h1>
-        <button className="btn" onClick={() => setShowModal(true)}>+ Register Device</button>
-      </div>
+      <PageHeader
+        title="Medical Devices"
+        actions={<button className="btn" onClick={() => setShowModal(true)}>+ Register Device</button>}
+      />
 
-      <div className="inline-alert info">
-        💡 Sensor integration: devices POST vitals to <code>POST /api/sensors/ingest</code> with header <code>x-api-key: dev-sensor-key-123</code>. e.g. <code>{"{ device_code: 'DEV-1002', values: { heart_rate: 120 } }"}</code>
+      <div className="inline-alert info" style={{ wordBreak: 'break-word' }}>
+        Sensor integration: devices POST vitals to <code>POST /api/sensors/ingest</code> with header <code>x-api-key: dev-sensor-key-123</code>.
       </div>
 
       {loading ? <Spinner /> : devices.length === 0 ? <EmptyState message="No devices" /> : (
         <div className="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Code</th><th>Name</th><th>Type</th><th>Model</th><th>Status</th><th>Last Seen</th><th>Action</th></tr>
-            </thead>
-            <tbody>
-              {devices.map((d) => (
-                <tr key={d.id}>
-                  <td style={{ fontWeight: 600 }}>{d.device_code}</td>
-                  <td>{d.device_name}</td>
-                  <td>{d.device_type}</td>
-                  <td>{d.model || '—'}</td>
-                  <td><StatusBadge status={d.status} /></td>
-                  <td className="muted">{d.last_seen ? new Date(d.last_seen).toLocaleString() : 'never'}</td>
-                  <td><button className="btn btn-secondary btn-sm" onClick={() => openAssign(d)}>Assign</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table>
+              <thead>
+                <tr><th>Code</th><th>Name</th><th>Type</th><th>Model</th><th>Status</th><th>Last Seen</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                {devices.map((d) => (
+                  <tr key={d.id}>
+                    <td style={{ fontWeight: 600 }}>{d.device_code}</td>
+                    <td>{d.device_name}</td>
+                    <td>{d.device_type}</td>
+                    <td>{d.model || '—'}</td>
+                    <td><StatusBadge status={d.status} /></td>
+                    <td className="muted">{d.last_seen ? new Date(d.last_seen).toLocaleString() : 'never'}</td>
+                    <td><button className="btn btn-secondary btn-sm" onClick={() => openAssign(d)}>Assign</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

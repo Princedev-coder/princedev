@@ -70,6 +70,7 @@ export default function Layout() {
   const [unread, setUnread] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [showBell, setShowBell] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const bellRef = useRef(null);
 
   const nav = NAV[user?.role] || [];
@@ -94,7 +95,7 @@ export default function Layout() {
       push(n.title || 'New notification', 'info');
     });
     socket.on('alert:new', (a) => {
-      push(`🚨 ${a.title || 'Alert'}: ${a.message}`, 'alert');
+      push(`${a.title || 'Alert'}: ${a.message}`, 'alert');
     });
     socket.on('vital:reading', (v) => {
       if (!location.pathname.startsWith('/monitor')) return;
@@ -113,6 +114,19 @@ export default function Layout() {
     document.addEventListener('mousedown', onClick);
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [sidebarOpen]);
 
   const markRead = async (id) => {
     try {
@@ -143,39 +157,49 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <div className={`sidebar-overlay ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} role="navigation" aria-label="Main navigation">
         <div className="brand">
-          <div className="logo">+</div>
+          <div className="logo" aria-hidden="true">+</div>
           <div className="brand-name">CareMonitor</div>
         </div>
-        {nav.map((item, i) =>
-          item.section ? (
-            <div key={i} className="nav-section">{item.section}</div>
-          ) : (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-              <span className="icon">{item.icon}</span>
-              {item.label}
-            </NavLink>
-          )
-        )}
+        <nav className="sidebar-nav">
+          {nav.map((item, i) =>
+            item.section ? (
+              <div key={i} className="nav-section">{item.section}</div>
+            ) : (
+              <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                <span className="icon" aria-hidden="true">{item.icon}</span>
+                {item.label}
+              </NavLink>
+            )
+          )}
+        </nav>
       </aside>
 
       <div className="main">
         <div className="topbar">
-          <div className="page-title">{pageTitle}</div>
+          <div className="topbar-left">
+            <button className="menu-toggle" onClick={() => setSidebarOpen(true)} aria-label="Open navigation menu">
+              <span className="menu-bar" />
+              <span className="menu-bar" />
+              <span className="menu-bar" />
+            </button>
+            <div className="page-title">{pageTitle}</div>
+          </div>
           <div className="topbar-right">
-            <div className="bell-wrap" ref={bellRef} onClick={() => setShowBell((s) => !s)}>
-              <span>🔔</span>
+            <div className="bell-wrap" ref={bellRef} onClick={() => setShowBell((s) => !s)} role="button" aria-label={`Notifications (${unread} unread)`} tabIndex={0}>
+              <span aria-hidden="true">🔔</span>
               {unread > 0 && <span className="badge">{unread}</span>}
               {showBell && (
-                <div className="card" style={{ position: 'absolute', right: 0, top: 30, width: 340, maxHeight: 380, overflowY: 'auto', zIndex: 30, padding: 0 }}>
-                  <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="card notifications-panel">
+                  <div className="notifications-header">
                     <strong>Notifications</strong>
                     <button className="btn btn-secondary btn-sm" onClick={markAll}>Mark all read</button>
                   </div>
                   {notifications.length === 0 && <div className="empty-state">No notifications</div>}
                   {notifications.map((n) => (
-                    <div key={n.id} onClick={() => n.is_read !== 1 && markRead(n.id)} style={{ padding: '10px 14px', borderBottom: '1px solid #f1f5f9', cursor: n.is_read ? 'default' : 'pointer', opacity: n.is_read ? 0.6 : 1 }}>
+                    <div key={n.id} className="notification-item" onClick={() => n.is_read !== 1 && markRead(n.id)} style={{ opacity: n.is_read ? 0.6 : 1 }}>
                       <div style={{ fontWeight: 600, fontSize: 13 }}>{n.title}</div>
                       <div className="muted" style={{ fontSize: 12 }}>{n.message}</div>
                       <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>{new Date(n.created_at).toLocaleString()}</div>
@@ -185,7 +209,7 @@ export default function Layout() {
               )}
             </div>
             <div className="user-chip">
-              <div className="avatar">{(user?.full_name || 'U').charAt(0).toUpperCase()}</div>
+              <div className="avatar" aria-hidden="true">{(user?.full_name || 'U').charAt(0).toUpperCase()}</div>
               <div>
                 <div className="u-name">{user?.full_name}</div>
                 <div className="u-role">{user?.role}</div>

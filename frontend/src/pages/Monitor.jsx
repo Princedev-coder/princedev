@@ -48,12 +48,12 @@ export default function Monitor() {
           const alert = v._alert;
           return (
             <div key={p.id} className="card" style={{ borderColor: alert ? 'var(--danger)' : 'var(--border)', borderWidth: alert ? 2 : 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{p.first_name} {p.last_name}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.first_name} {p.last_name}</div>
                   <div className="muted" style={{ fontSize: 12 }}>{p.patient_number}</div>
                 </div>
-                <span className="badge badge-green" style={{ position: 'relative' }}>
+                <span className="badge badge-green" style={{ flexShrink: 0 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#16a34a', display: 'inline-block', marginRight: 5, animation: 'pulse 1.2s infinite' }} />
                   LIVE
                 </span>
@@ -65,11 +65,11 @@ export default function Monitor() {
               </div>
               {alert && (
                 <div className="inline-alert error" style={{ marginTop: 10, marginBottom: 0 }}>
-                  🚨 {alert.alert_type}: {alert.message}
+                  {alert.alert_type}: {alert.message}
                 </div>
               )}
               <div className="mt-4">
-                <Link className="btn btn-sm" to={`/monitor/${p.id}`} style={{ width: '100%', justifyContent: 'center' }}>Open Monitor</Link>
+                <Link className="btn btn-sm w-100" to={`/monitor/${p.id}`} style={{ justifyContent: 'center' }}>Open Monitor</Link>
               </div>
             </div>
           );

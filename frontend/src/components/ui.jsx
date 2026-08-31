@@ -43,8 +43,8 @@ export function RiskBadge({ level, score }) {
   const tone = { LOW: 'green', MEDIUM: 'amber', HIGH: 'red', CRITICAL: 'red' }[level] || 'gray';
   const fill = { LOW: '#16a34a', MEDIUM: '#d97706', HIGH: '#dc2626', CRITICAL: '#991b1b' }[level] || '#64748b';
   return (
-    <div style={{ minWidth: 110 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ minWidth: 100 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
         <Badge tone={tone}>{level}</Badge>
         {score !== undefined && <span className="muted" style={{ fontSize: 12, fontWeight: 600 }}>{Number(score).toFixed(3)}</span>}
       </div>
@@ -72,11 +72,11 @@ export function EmptyState({ message = 'No data available' }) {
 
 export function Modal({ title, onClose, children, wide }) {
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
       <div className="modal" style={wide ? { maxWidth: 800 } : {}} onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{title}</div>
-          <button className="modal-close" onClick={onClose} aria-label="Close">×</button>
+          <button className="modal-close" onClick={onClose} aria-label="Close dialog">×</button>
         </div>
         {children}
       </div>
@@ -88,7 +88,7 @@ export function PageHeader({ title, actions }) {
   return (
     <div className="page-header">
       <h1>{title}</h1>
-      <div style={{ display: 'flex', gap: 8 }}>{actions}</div>
+      {actions && <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{actions}</div>}
     </div>
   );
 }

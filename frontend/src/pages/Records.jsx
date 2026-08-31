@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, errorMessage } from '../api/client';
-import { Spinner, EmptyState, Modal, Field, useToast, StatusBadge } from '../components/ui';
+import { Spinner, EmptyState, Modal, Field, useToast, StatusBadge, PageHeader } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 
 const TABS = [
@@ -158,10 +158,10 @@ export default function Records() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Records</h1>
-        {canCreate && <button className="btn" onClick={openCreate}>+ New {tab.slice(0, -1)}</button>}
-      </div>
+      <PageHeader
+        title="Records"
+        actions={canCreate && <button className="btn" onClick={openCreate}>+ New {tab.slice(0, -1)}</button>}
+      />
 
       <div className="tabs">
         {TABS.filter((t) => (user.role === 'NURSE' ? ['notes', 'records', 'labs', 'appointments'].includes(t.key) : true))
@@ -172,17 +172,19 @@ export default function Records() {
 
       {loading ? <Spinner /> : rows.length === 0 ? <EmptyState message={`No ${tab} found`} /> : (
         <div className="table-wrap">
-          <table>
-            <thead><tr>{cfg.cols.map((c) => <th key={c}>{c}</th>)}</tr></thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id}>
-                  {cfg.row(r).map((cell, i) => <td key={i} style={{ maxWidth: 360, whiteSpace: 'normal' }}>{cell}</td>)}
-                  {cfg.detail && <td><button className="btn btn-secondary btn-sm" onClick={() => cfg.detail(r)}>View</button></td>}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table>
+              <thead><tr>{cfg.cols.map((c) => <th key={c}>{c}</th>)}</tr></thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.id}>
+                    {cfg.row(r).map((cell, i) => <td key={i} style={{ maxWidth: 360, whiteSpace: 'normal' }}>{cell}</td>)}
+                    {cfg.detail && <td><button className="btn btn-secondary btn-sm" onClick={() => cfg.detail(r)}>View</button></td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -203,19 +205,21 @@ export default function Records() {
           <p className="muted">Doctor: {prescriptionDetail.doctor_name || '—'} · {new Date(prescriptionDetail.prescription_date).toLocaleDateString()}</p>
           {prescriptionDetail.notes && <p>{prescriptionDetail.notes}</p>}
           {prescriptionDetail.items?.length ? (
-            <table>
-              <thead><tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th></tr></thead>
-              <tbody>
-                {prescriptionDetail.items.map((it) => (
-                  <tr key={it.id}>
-                    <td>{it.medicine_name}</td>
-                    <td>{it.dosage || '—'}</td>
-                    <td>{it.frequency || '—'}</td>
-                    <td>{it.duration || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table>
+                <thead><tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th></tr></thead>
+                <tbody>
+                  {prescriptionDetail.items.map((it) => (
+                    <tr key={it.id}>
+                      <td>{it.medicine_name}</td>
+                      <td>{it.dosage || '—'}</td>
+                      <td>{it.frequency || '—'}</td>
+                      <td>{it.duration || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : <EmptyState message="No items on this prescription" />}
         </Modal>
       )}

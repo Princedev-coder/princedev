@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, errorMessage } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { Spinner, Field, useToast } from '../components/ui';
+import { Spinner, Field, useToast, PageHeader } from '../components/ui';
 
 export default function Profile() {
   const { user, setUser } = useAuth();
@@ -32,9 +32,7 @@ export default function Profile() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>My Profile</h1>
-      </div>
+      <PageHeader title="My Profile" />
       <div className="grid grid-2">
         <div className="card">
           <div className="card-title">Account Information</div>

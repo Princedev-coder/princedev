@@ -81,8 +81,8 @@ export default function MonitorPatient() {
   return (
     <>
       <div className="page-header">
-        <div>
-          <h1>📡 {patient.first_name} {patient.last_name}</h1>
+        <div style={{ minWidth: 0 }}>
+          <h1>{patient.first_name} {patient.last_name}</h1>
           <div className="muted">{patient.patient_number} · Live monitoring</div>
         </div>
         <Link className="btn btn-secondary" to="/monitor">All Patients</Link>
@@ -123,19 +123,21 @@ export default function MonitorPatient() {
       <div className="card">
         <div className="card-title">Live Alerts</div>
         {liveAlerts.length === 0 ? <EmptyState message="No live alerts" /> : (
-          <table>
-            <thead><tr><th>Type</th><th>Severity</th><th>Message</th><th>Status</th></tr></thead>
-            <tbody>
-              {liveAlerts.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.alert_type}</td>
-                  <td><SeverityBadge severity={a.severity} /></td>
-                  <td>{a.message}</td>
-                  <td>{a.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table>
+              <thead><tr><th>Type</th><th>Severity</th><th>Message</th><th>Status</th></tr></thead>
+              <tbody>
+                {liveAlerts.map((a) => (
+                  <tr key={a.id}>
+                    <td>{a.alert_type}</td>
+                    <td><SeverityBadge severity={a.severity} /></td>
+                    <td style={{ whiteSpace: 'normal' }}>{a.message}</td>
+                    <td>{a.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </>
